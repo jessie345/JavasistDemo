@@ -7,7 +7,7 @@ buildscript {
         jcenter()
 
         maven {
-            url uri('/Users/liushuo/localMaven/myPlugin')
+            url uri('repo')
         }
     }
     dependencies {
