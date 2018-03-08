@@ -7,6 +7,8 @@ import android.util.Log;
  */
 
 public class Test {
+    private Test a;
+    
     public static void test() {
         Log.d("Test", "perform testing");
     }

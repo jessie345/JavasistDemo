@@ -1,6 +1,5 @@
 package com.demo.plugins
 
-import com.android.build.api.transform.Context
 import com.android.build.api.transform.DirectoryInput
 import com.android.build.api.transform.Format
 import com.android.build.api.transform.JarInput
@@ -52,10 +51,13 @@ public class MyPreDexTransform extends Transform {
 
         transformInvocation.inputs.each { TransformInput input ->
             input.directoryInputs.each { DirectoryInput directoryInput ->
-                InjectTools.inject(directoryInput.file.absolutePath, mProject)
+                InjectToolsRenameClass.inject(directoryInput.file.absolutePath, mProject)
 
                 File dest = outputProvider.getContentLocation(directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
                 FileUtils.copyDirectory(directoryInput.file, dest)
+
+                println("源文件：" + directoryInput.file)
+                println("目标文件：" + dest)
             }
 
             input.jarInputs.each { JarInput jarInput ->
@@ -67,6 +69,14 @@ public class MyPreDexTransform extends Transform {
                 }
 
                 File dest = outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
+
+                println("源jar文件：" + jarInput.file)
+                println("目标jar文件：" + dest)
+
+                if (dest.exists()) {
+                    dest.delete()
+                }
+
                 FileUtils.copyFile(jarInput.file, dest)
             }
         }

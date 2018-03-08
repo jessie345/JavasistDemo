@@ -7,10 +7,10 @@ import org.gradle.api.Project;
 
 /**
  * Created by liushuo on 2018/3/4.
- * 向指定类中插入语句
+ * 用重命名的方式创建新类
  */
 
-public class InjectTools {
+public class InjectToolsRenameClass {
     private static final ClassPool sClassPool = ClassPool.getDefault()
 
     public static void inject(String path, Project project) {
@@ -19,6 +19,8 @@ public class InjectTools {
         project.android.bootClasspath.each {
             sClassPool.appendClassPath((String) it.absolutePath)
         }
+
+        println("开始注入代码")
 
         File dir = new File(path)
         if (dir.isDirectory()) {
@@ -32,21 +34,24 @@ public class InjectTools {
                         ctClass.defrost()
                     }
 
-                    CtMethod ctMethod = ctClass.getDeclaredMethod("test")
+                    try {
+                        CtClass checkCtClass = sClassPool.getCtClass("com.javasist.liushuo.javasistdemo.TestAlias1")
+                        checkCtClass.defrost()
+                    } catch (Exception e) {
+                        e.printStackTrace()
+                    }
 
-                    println("获取CtMethod 实例：" + ctMethod)
+                    ctClass.setName("com.javasist.liushuo.javasistdemo.TestAlias1")
 
+                    CtClass oritinalTestClass = sClassPool.getCtClass("com.javasist.liushuo.javasistdemo.Test");
 
-                    String str = """
-        android.util.Log.d("Test", "insert before");
-        """
+                    println("original CtClass 实例:" + oritinalTestClass)
+                    println("TestAlias CtClass 实例:" + ctClass)
 
-                    ctMethod.insertBefore(str)
                     ctClass.writeFile(path)
+
                     ctClass.detach()
-
-                    println("path：" + path + ",file parent:" + file.getParent())
-
+                    oritinalTestClass.detach()
                 }
             }
         }
