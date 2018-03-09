@@ -1,4 +1,4 @@
-package com.demo.plugins
+package com.demo.plugins.casedemo
 
 import javassist.ClassPool
 import javassist.CtClass
@@ -7,10 +7,10 @@ import org.gradle.api.Project;
 
 /**
  * Created by liushuo on 2018/3/4.
- * 用重命名的方式创建新类
+ * 动态修改AlertDialog 子类的继承关系，使之继承DDAlertDialog
  */
 
-public class InjectToolsRenameClass {
+public class InjectCase1 {
     private static final ClassPool sClassPool = ClassPool.getDefault()
 
     public static void inject(String path, Project project) {
@@ -20,15 +20,10 @@ public class InjectToolsRenameClass {
             sClassPool.appendClassPath((String) it.absolutePath)
         }
 
-        println("开始注入代码")
-
         File dir = new File(path)
         if (dir.isDirectory()) {
             dir.eachFileRecurse { File file ->
                 if (file.getName().equals("Test.class")) {
-
-                    println("文件夹path:" + path)
-                    println("类文件的全部路径:" + file.getAbsolutePath());
 
                     CtClass ctClass = sClassPool.getCtClass("com.javasist.liushuo.javasistdemo.Test")
 
@@ -36,21 +31,18 @@ public class InjectToolsRenameClass {
                         ctClass.defrost()
                     }
 
-                    try {
-                        CtClass checkCtClass = sClassPool.getCtClass("com.javasist.liushuo.javasistdemo.TestAlias1")
-                        checkCtClass.defrost()
-                    } catch (Exception e) {
-                        e.printStackTrace()
-                    }
+                    CtMethod ctMethod = ctClass.getDeclaredMethod("test")
 
-                    ctClass.setName("com.javasist.liushuo.javasistdemo.TestAlias1")
+                    String str = """
+        android.util.Log.d("Test", "insert before");
+        """
 
-                    CtClass oritinalTestClass = sClassPool.getCtClass("com.javasist.liushuo.javasistdemo.Test");
-
+                    ctMethod.insertBefore(str)
                     ctClass.writeFile(path)
-
                     ctClass.detach()
-                    oritinalTestClass.detach()
+
+                    println("path：" + path + ",file parent:" + file.getParent())
+
                 }
             }
         }
