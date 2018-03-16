@@ -16,7 +16,7 @@ repositories {
 
 
 group='com.demo.plugins'
-version='1.0.51'
+version='1.0.57'
 
 uploadArchives {
     repositories {
